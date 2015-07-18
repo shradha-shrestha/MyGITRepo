@@ -13,6 +13,11 @@ namespace ExcelBKK.CommonController
     {
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
+			if (Session["userId"] == null || Session["userId"].ToString() == string.Empty)
+            {
+                filterContext.Result =  RedirectToAction("index","login");
+                return;               
+            }
             var sessionUserid = long.Parse(Session["userId"].ToString());
 
             var objUserAccountHelper = new UserAccountHelper();
