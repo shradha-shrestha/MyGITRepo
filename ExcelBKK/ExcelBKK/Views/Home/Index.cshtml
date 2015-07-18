@@ -1,0 +1,224 @@
+﻿@{
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@section jScript
+{
+    @*<script src="~/Designs/bootstrap/js/bootstrap.js"></script>*@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tabs').tab();
+            $('#btnAddCourse').click(addCourse);
+            loadCourse();
+            loadCourseTiming();
+            loadSearchResult();
+            $('#ddlCourseName').change(loadSearchResult);
+            $('#ddlCourseTiming').change(loadSearchResult);
+        });
+
+        function loadCourse() {
+            $('#ddlCourseName').prop('disabled', true);
+            var parameters = { courseName: '0' };
+            CallAJAX('@Url.Action("loadCourses", "Home")', parameters, function (data) {
+                $('#ddlCourseName').html('');
+                $('#ddlCourseName').append("<option value='-SELECT-' text='-SELECT-'>-SELECT-</option>");
+                $.each(data, function (i, item) {
+                    $('#ddlCourseName').append("<option value='" + item.courseName + "' text='" + item.courseName + "' >" + item.courseName + "</option>");
+                });
+                $('#ddlCourseName').prop('disabled', false);
+                //console.log(data);
+            });
+        }
+
+        function loadCourseTiming() {
+            $('#ddlCourseTiming').prop('disabled', true);
+            var parameters = { courseName: '0' };
+            CallAJAX('@Url.Action("loadCourseTimings", "Home")', parameters, function (data) {
+                $('#ddlCourseTiming').html('');
+                $('#ddlCourseTiming').append("<option value='-SELECT-' text='-SELECT-'>-SELECT-</option>");
+                $.each(data, function (i, item) {
+                    $('#ddlCourseTiming').append("<option value='" + item.endTime + "' text='" + item.endTime + "' >" + item.endTime + "</option>");
+                });
+                $('#ddlCourseTiming').prop('disabled', false);
+                //console.log(data);
+            });
+        }
+
+        function loadSearchResult() {
+            var courseName = $('#ddlCourseName').val();
+            var courseTiming = $('#ddlCourseTiming').val();
+            var parameters = { courseName: courseName, courseTiming: courseTiming };
+            CallAJAX('@Url.Action("searchResults", "Home")', parameters, function (data) {
+                $('#bodyResult').html('');
+                $.each(data, function (i, item) {
+                    $('#bodyResult').append(
+                        '<tr><td>' + item.courseName + '</td><td>' + item.courseDescription + '</td><td>' + item.courseCategory +
+                        '</td><td>' + item.startTime + '</td><td>' + item.endTime + '</td><td>' + item.numberOfStudent + '</td><td>' + item.instructorName + '</td></tr>');
+                });
+            });
+        }
+
+        function addCourse() {
+            var courseName = $('#courseName').val();
+            var courseDesc = $('#courseDesc').val();
+            var courseCategory = $('#courseCategory').val();
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
+            var noOfStudents = $('#noOfStudents').val();
+
+            if (courseName.length <= 0 || courseCategory.length <= 0 || startTime.length <= 0 || endTime.length <= 0) {
+                OpenInfoDialog('InSufficient Values', 'Course name, Course category, Start time, End time and No. of students field must not be empty.');
+            }
+            else if ((new Date("1/1/2015 " + startTime) - new Date("1/1/2015 " + endTime)) >= 0) {
+                OpenInfoDialog('Invalied Values', 'The start time should be less than end time.');
+            }
+            else if (noOfStudents <= 0) {
+                OpenInfoDialog('Invalied Values', 'Number of students cannot be less than 1.');
+            }
+            else {
+                var parameters = { courseName: courseName, courseDesc: courseDesc, courseCategory: courseCategory, startTime: startTime, endTime: endTime, noOfStudents: noOfStudents };
+
+                CallAJAX('@Url.Action("addCourse", "Home")', parameters, function (data) {
+                    if (data == -1) {
+                        OpenInfoDialog('Unsuccessful', 'The course already exists during given time. Please try again.');
+                    }
+                    else if (data == 0) {
+                        OpenInfoDialog('Unsuccessful', 'The course could not be added. Please try again.');
+                    }
+                    else if (data == 1) {
+                        loadCourse();
+                        loadCourseTiming();
+                        loadSearchResult();
+                        OpenInfoDialog('Course Added', 'The course has been added.', clearAddCourseForm);
+                    }
+                });
+            }
+        }
+
+        function clearAddCourseForm() {
+            $('#courseName').val('');
+            $('#courseDesc').val('');
+            $('#courseCategory').val('');
+            $('#startTime').val('');
+            $('#endTime').val('');
+            $('#noOfStudents').val('1');
+        }
+
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    </script>
+}
+
+<div id="content">
+    <ul id="tabs" class="nav nav-tabs" data-tabs="tabs" style="margin-top:10px;">
+        <li id="searchCourse" class="active"><a href="#tabSearchCourse" data-toggle="tab">Search</a></li>
+        @if (ViewBag.isInstructor)
+        {
+            <li id="addCourseForm"><a href="#tabAddCourse" data-toggle="tab">Add</a></li>
+        }
+    </ul>
+
+    <div id="my-tab-content" class="tab-content">
+        <div class="tab-pane active" id="tabSearchCourse">
+            <h3>Search Course</h3>            
+            <div style="width:600px;">                
+                <table>
+                    <tr style="width: 600px;">
+                        <td style="width: 150px; text-align: right"> Select Course : </td>
+                        <td style="padding-left:10px;"><select id="ddlCourseName" style="width:300px;" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div style="width:600px;">                
+                <table>
+                    <tr style="width: 600px;">
+                        <td style="width: 150px; text-align: right"> Select Course Timing : </td>
+                        <td style="padding-left:10px;"><select id="ddlCourseTiming" style="width:300px;" /></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="divResult">
+                <table class="table table-striped" id="tableResult">
+                    <thead>
+                        <tr>
+                            <th>
+                                Course Name
+                            </th>
+                            <th>
+                                Course Description
+                            </th>
+                            <th>
+                                Course Category
+                            </th>
+                            <th>
+                                Start Time
+                            </th>
+                            <th>
+                                End Time
+                            </th>
+                            <th>
+                                Number of Students
+                            </th>
+                            <th>
+                                Instructor
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyResult"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tabAddCourse">
+            <h3>Add Course</h3>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">*Course Name</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="courseName" name="courseName" placeholder="course name" style="margin-left: 10px; margin-top: 5px; width: 300px;" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">Course Description</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="courseDesc" name="courseDesc" placeholder="course description" style="margin-left: 10px; margin-top: 5px; width: 300px;" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Course Category</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="courseCategory" name="courseCategory" placeholder="course Category" style="margin-left: 10px; margin-top: 5px; width: 300px;" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Start Time</label>
+                    <div class="col-sm-10">
+                        <input type="time" id="startTime" name="startTime" style="margin-left: 10px; margin-top: 5px; width: 300px;" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*End Time</label>
+                    <div class="col-sm-10">
+                        <input type="time" id="endTime" name="endTime" style="margin-left: 10px; margin-top: 5px; width: 300px;" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Number of Students</label>
+                    <div class="col-sm-10">
+                        <input type="number" onkeypress="return isNumberKey(event)" value="1" id="noOfStudents" name="noOfStudents" placeholder="number of students" style="margin-left: 10px; margin-top: 5px; width: 300px;" />
+                    </div>
+                </div>
+                <div class="form-group" style="margin-left:382px; margin-top:5px;">
+                    <button type="button" id="btnAddCourse" style="width:100px; height:30px;" class="btn btn-primary">Add Course</button>
+                </div>
+            </form>            
+        </div>
+    </div>
+</div>

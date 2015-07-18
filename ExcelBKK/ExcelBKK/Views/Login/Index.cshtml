@@ -1,0 +1,194 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link href="~/Designs/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <form style="margin-left: 35%; margin-top: 15%; border: 5px solid #EFF3FB; width: 300px; height: 230px; ">
+        <div class="form-group" style="height: 25px; background-color: #EFF3FB; color: white; font-size: 30px;">
+            <center><span>LOGIN</span></center>
+        </div>        
+        <div class="form-group" style="margin-top:10px; margin-left:10px;">
+            <label>Username</label>
+            <input id="loginUserName" type="text" name="loginName" placeholder="username" style="width:260px;" />
+        </div>
+        <div class="form-group" style="margin-left:10px; margin-top:2px;">
+            <label>Password</label>
+            <input id="loginPassword" type="password" name="loginPassword" placeholder="password" style="width:260px;" />
+        </div>
+        <div class="form-group" style="margin-left:10px; margin-top:5px;">
+            <button type="button" class="btn btn-primary" onclick="userLogin()" value="Login" style="width:275px;">Login</button>
+        </div>
+        <div class="form-group" style="margin-left:10px; margin-top:2px; margin-right:15px; float:right">
+            <span><a href="javascript:callRegister()">Register</a></span>
+        </div>
+    </form>    
+
+    <div id="popRegister" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="lblpopRegister" aria-hidden="true" 
+         style="width:500px; height:380px;">
+        <div class="modal-header">
+            <button type="button" class="close" aria-hidden="true" id="xpopCancelRegister">×</button>
+            <h3 id="lblEditShopPhoto">Register</h3>
+        </div>    
+        <div id="registerBody" class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">*Firstname</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="firstName" name="firstName" style="margin-left:10px;" placeholder="first name" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Lastname</label>
+                    <div class="col-sm-10" >
+                        <input type="text" id="lastName" name="lastName" style="margin-left:10px; margin-top:5px;" placeholder="last name" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">Nickname</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="nickName" name="nickName" style="margin-left:10px; margin-top:5px;" placeholder="nickname" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Date Of Birth</label>
+                    <div class="col-sm-10">
+                        <input type="date" id="dateOfBirth" name="dateOfBirth" style="margin-left:10px; margin-top:5px;" placeholder="yyyy-mm-dd" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Role</label>
+                    <div class="col-sm-10">
+                        <select id="ddlRole" style="margin-left:10px; margin-top:5px;">
+                            <option value="Student">Student</option>
+                            <option value="Instructor">Instructor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Username</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="userName" name="userName" style="margin-left:10px; margin-top:5px;" placeholder="username" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Password</label>
+                    <div class="col-sm-10">
+                        <input type="password" id="password" name="password" style="margin-left:10px; margin-top:5px;" placeholder="password" />
+                    </div>
+                </div>
+            </form>           
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" id="popSubmitRegister">Register</button>
+            <button class="btn btn-danger" id="popCancelRegister">Cancel</button>
+        </div>
+    </div>
+
+    <div id="dialog" class="modal hide">
+        <div class="modal-header">
+            <h3><div id="dlgHeader"></div></h3>
+        </div>
+        <div id="dlgBody" class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <input type="button" id="btnDlgOK" class="btn btn-primary" data-dismiss="modal" value="OK">
+            <input type="button" id="btnDlgYes" class="btn btn-primary" data-dismiss="modal" value="Yes">
+            <input type="button" id="btnDlgNo" class="btn btn-default" data-dismiss="modal" value="No">
+            <input type="button" id="btnDlgConfirm" class="btn btn-primary" data-dismiss="modal" value="Confirm">
+            <input type="button" id="btnDlgCancel" class="btn btndefault" data-dismiss="modal" value="Cancel">
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="~/Designs/bootstrap/js/bootstrap.js"></script>
+<script src="~/Scripts/scripts.js"></script>
+<script src="~/Designs/bootstrap/js/passwordValidator.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#popRegister').modal({
+            backdrop: 'static',
+            keyboard: false,
+            show: false
+        });
+        $('#popSubmitRegister').click(submitRegister);
+        $('#popCancelRegister').click(closeRegister);
+        $('#xpopCancelRegister').click(closeRegister);
+    });
+
+    function closeRegister() {
+        $('#popRegister').modal('hide');
+        $("body").css("overflow", "visible");
+    }
+
+    function callRegister() {
+        $('#popRegister').modal('show');
+        $("body").css("overflow", "hidden");
+    }
+
+    function clearRegisterForm() {
+        $('#firstName').val('');
+        $('#lastName').val('');
+        $('#nickName').val('');
+        $('#dateOfBirth').val('');
+        $('#ddlRole').val('');
+        $('#userName').val('');
+        $('#password').val('');
+    }
+
+    function submitRegister() {
+        var fName = $('#firstName').val();
+        var lName = $('#lastName').val();
+        var nName = $('#nickName').val();
+        var dob = $('#dateOfBirth').val();
+        var role = $('#ddlRole').val();
+        var uName = $('#userName').val();
+        var password = $('#password').val();
+
+        if (fName.length <= 0 || lName.length <= 0 || dob.length <= 0 || uName.length <= 0 || password.length <= 0) {
+            OpenInfoDialog('InSufficient Values', 'Firstname, Lastname, DateOfBirth, UserName and Password field must not be empty.');
+        }
+        else {
+            var parameters = { firstName: fName, lastName: lName, nickName: nName, dateOfBirth: dob, role: role, userName: uName, password: password };
+
+            CallAJAX('@Url.Action("registerUser", "Login")', parameters, function (data) {
+                if (data == -1) {
+                    OpenInfoDialog('Registration UnSuccessful', 'Username already exists. Please try with different username.');
+                }
+                else if (data == 0) {
+                    OpenInfoDialog('Registration UnSuccessful', 'The registration could not be completed. Please try again.');
+                }
+                else if (data == 1) {
+                    closeRegister();
+                    OpenInfoDialog('Registration Successful', 'Please log in to the system with your registered username and password.', clearRegisterForm);
+                }
+            });
+        }
+    }
+
+    function userLogin() {
+        var uName = $('#loginUserName').val();
+        var password = $('#loginPassword').val();
+        var parameters = { loginName: uName, loginPassword: password };
+
+        CallAJAX('@Url.Action("mainLogin", "Login")', parameters, function (data) {
+            if (data == -1) {
+                OpenInfoDialog('Login UnSuccessful', 'Invalid Username or Password.');
+            }
+            else if (data == 1) {
+                window.location.assign("/Home/Index");
+            }
+
+        });
+    }
+
+</script>

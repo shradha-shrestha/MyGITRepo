@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <link href="~/Designs/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @RenderSection("style", false)
+</head>
+<body class="container">
+    <div class="row" style="height: 150px; background-color: #EFF3FB; color: white; text-align: center;">
+        <div style="margin-top:50px; margin-bottom:50px;"><font size="50">Course Management System</font></div>
+    </div>
+    <div>
+        <span style="float:right;"> &nbsp; <a href="@Url.Action("logOut","Login")"> Log Out</a></span>
+        <span style="float: right;">Hi, <a href="javascript:callEditor()">@ViewBag.UserName</a></span>
+    </div>
+    <div>
+        @RenderBody()
+    </div>
+
+    <div id="popEditor" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="lblpopEditor" aria-hidden="true" 
+         style="width:500px; height:330px;">
+        <div class="modal-header">
+            <button type="button" class="close" aria-hidden="true" id="xpopCancelEditor">×</button>
+            <h3 id="lblEditShopPhoto">Update Profile</h3>
+        </div>
+        <div id="EditorBody" class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">*Firstname</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="firstName" name="firstName" style="margin-left:10px; margin-top:5px;" placeholder="first name" value="@ViewBag.firstName" />
+                        </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Lastname</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="lastName" name="lastName" style="margin-left:10px; margin-top:5px;" placeholder="last name" value="@ViewBag.lastName" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">Nickname</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="nickName" name="nickName" style="margin-left:10px; margin-top:5px;" placeholder="nickname" value="@ViewBag.nickName" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">*Date Of Birth</label>
+                    <div class="col-sm-10">
+                        <input type="date" id="dateOfBirth" name="dateOfBirth" style="margin-left:10px; margin-top:5px;" value="@ViewBag.dateOfBirth" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="margin-top:5px;">Role</label>
+                    <div class="col-sm-10">
+                        <input type="text" style="margin-left:10px; margin-top:5px;" readonly="readonly" id="role" value="@ViewBag.role" />
+                    </div>
+                </div>
+            </form>            
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" id="popSubmitEditor">Update</button>
+            <button class="btn btn-danger" id="popCancelEditor">Cancel</button>
+        </div>
+    </div>
+
+    <div id="dialog" class="modal hide">
+        <div class="modal-header">
+            <h3><div id="dlgHeader"></div></h3>
+        </div>
+        <div id="dlgBody" class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <input type="button" id="btnDlgOK" class="btn btn-primary" data-dismiss="modal" value="OK">
+            <input type="button" id="btnDlgYes" class="btn btn-primary" data-dismiss="modal" value="Yes">
+            <input type="button" id="btnDlgNo" class="btn btn-default" data-dismiss="modal" value="No">
+            <input type="button" id="btnDlgConfirm" class="btn btn-primary" data-dismiss="modal" value="Confirm">
+            <input type="button" id="btnDlgCancel" class="btn btndefault" data-dismiss="modal" value="Cancel">
+        </div>
+    </div>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="~/Designs/bootstrap/js/bootstrap.js"></script>
+    <script src="~/Scripts/scripts.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#popEditor').modal({
+                backdrop: 'static',
+                keyboard: false,
+                show: false
+            });
+            $('#popSubmitEditor').click(submitEditor);
+            $('#popCancelEditor').click(closeEditor);
+            $('#xpopCancelEditor').click(closeEditor);
+        });
+
+        function closeEditor() {
+            $('#popEditor').modal('hide');
+            $("body").css("overflow", "visible");
+        }
+
+        function callEditor() {
+            $('#popEditor').modal('show');
+            $("body").css("overflow", "hidden");
+        }
+
+        function reloadPage() {
+            location.reload();
+        }
+
+        function submitEditor() {
+            var fName = $('#firstName').val();
+            var lName = $('#lastName').val();
+            var nName = $('#nickName').val();
+            var dob = $('#dateOfBirth').val();
+            var parameters = { firstName: fName, lastName: lName, nickName: nName, dateOfBirth: dob };
+
+            if (fName.length <= 0 || lName.length <= 0 || dob.length <= 0) {
+                OpenInfoDialog('InSufficient Values', 'Firstname, Lastname and DateOfBirth field must not be empty.');
+            }
+
+            CallAJAX('@Url.Action("updateUserDetails", "Login")', parameters, function (data) {
+                if (data == 0) {
+                    OpenInfoDialog('Update UnSuccessful', 'The update could not be completed. Please try again.');
+                }
+                else if (data == 1) {
+                    closeEditor();
+                    OpenInfoDialog('Update Successful', 'The values are updated successfully.', reloadPage);
+                }
+            });
+        }
+    </script>
+    @RenderSection("jScript", false)
+</body>
+</html>
